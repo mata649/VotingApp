@@ -1,10 +1,8 @@
 ﻿
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
 using VotingApp.Base.Domain;
 using VotingApp.Context;
-using VotingApp.Pool.Domain;
 using VotingApp.User.Domain;
 using VotingApp.User.Domain.DTO;
 
@@ -63,7 +61,7 @@ public class UserService : IUserService
 
             UserEntity? userFound = _unitOfWork.UserRepository.GetById(user.ID);
 
-            if (userFound is null) return new ResponseFailure($"User was not found", 404);
+            if (userFound is null) return new ResponseFailure("User was not found", 404);
             if (userFound.ID != changePasswordDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
             if (!VerifyPassword(user.Password, userFound.Password)) return new ResponseFailure("Password incorrect", 401);
 
@@ -103,7 +101,7 @@ public class UserService : IUserService
         {
             UserEntity user = updateDTO.ToEntity();
             UserEntity? userFound = _unitOfWork.UserRepository.GetById(user.ID);
-            if (userFound is null) return new ResponseFailure($"User was not found", 404);
+            if (userFound is null) return new ResponseFailure("User was not found", 404);
             if (userFound.ID != updateDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
             userFound.Name = user.Name;
             userFound.Email = user.Email;
@@ -147,7 +145,7 @@ public class UserService : IUserService
         {
             UserEntity? userFound = _unitOfWork.UserRepository.GetById(deleteDTO.ID);
 
-            if (userFound is null) return new ResponseFailure($"User was not found ", 404);
+            if (userFound is null) return new ResponseFailure("User was not found", 404);
             if (userFound.ID != deleteDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
 
             _unitOfWork.UserRepository.Delete(deleteDTO.ID);
@@ -169,7 +167,7 @@ public class UserService : IUserService
         try
         {
             UserEntity? userFound = _unitOfWork.UserRepository.GetById(getByIDDTO.ID);
-            if (userFound is null) return new ResponseFailure($"user was not found", 404);
+            if (userFound is null) return new ResponseFailure("User was not found", 404);
 
             return new ResponseSuccess(ResponseUserDTO.FromUser(userFound), 200);
         }
