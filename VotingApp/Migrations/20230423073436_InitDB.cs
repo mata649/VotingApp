@@ -26,7 +26,7 @@ namespace VotingApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Pool",
+                name: "poll",
                 columns: table => new
                 {
                     ID = table.Column<Guid>(type: "uuid", nullable: false),
@@ -36,9 +36,9 @@ namespace VotingApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Pool", x => x.ID);
+                    table.PrimaryKey("PK_poll", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Pool_User_UserID",
+                        name: "FK_poll_User_UserID",
                         column: x => x.UserID,
                         principalTable: "User",
                         principalColumn: "ID",
@@ -50,16 +50,16 @@ namespace VotingApp.Migrations
                 columns: table => new
                 {
                     ID = table.Column<Guid>(type: "uuid", nullable: false),
-                    PoolID = table.Column<Guid>(type: "uuid", nullable: false),
+                    pollID = table.Column<Guid>(type: "uuid", nullable: false),
                     Text = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Option", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Option_Pool_PoolID",
-                        column: x => x.PoolID,
-                        principalTable: "Pool",
+                        name: "FK_Option_poll_pollID",
+                        column: x => x.pollID,
+                        principalTable: "poll",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -90,13 +90,13 @@ namespace VotingApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Option_PoolID",
+                name: "IX_Option_pollID",
                 table: "Option",
-                column: "PoolID");
+                column: "pollID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pool_UserID",
-                table: "Pool",
+                name: "IX_poll_UserID",
+                table: "poll",
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
@@ -120,7 +120,7 @@ namespace VotingApp.Migrations
                 name: "Option");
 
             migrationBuilder.DropTable(
-                name: "Pool");
+                name: "poll");
 
             migrationBuilder.DropTable(
                 name: "User");

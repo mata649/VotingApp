@@ -35,7 +35,7 @@ namespace VotingApp.Vote.Infrastructure
                 var countResp = _service.AddVoteToDashboard(option);
                 if (countResp.Type == 200 && countResp.Value is List<CountByOptionDTO> count) await _hubContext.
                         Clients.
-                        Group(option.PoolID.ToString()).
+                        Group(option.PollID.ToString()).
                         SendAsync("AwaitDashboardInfo", JsonSerializer.Serialize(count));
             }
 

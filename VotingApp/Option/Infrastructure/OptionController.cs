@@ -24,11 +24,11 @@ namespace VotingApp.Option.Rest
         [HttpGet, Authorize]
         public ActionResult Get(
             [FromQuery] string text = "",
-            [FromQuery] Guid poolID = default,
+            [FromQuery] Guid pollID = default,
             [FromQuery] ushort pageSize = 10,
             [FromQuery] ushort currentPage = 1)
         {
-            IResponse resp = _service.Get(new(currentPage, pageSize, text, poolID));
+            IResponse resp = _service.Get(new(currentPage, pageSize, text, pollID));
             return StatusCode(resp.Type, resp.Value);
         }
 

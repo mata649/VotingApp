@@ -6,8 +6,8 @@ using VotingApp.Context;
 using VotingApp.Infrastructure;
 using VotingApp.Option.Application;
 using VotingApp.Option.Domain;
-using VotingApp.Pool.Application;
-using VotingApp.Pool.Domain;
+using VotingApp.Poll.Application;
+using VotingApp.Poll.Domain;
 using VotingApp.Rest;
 using VotingApp.User.Application;
 using VotingApp.User.Domain;
@@ -31,8 +31,8 @@ builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 
-// Pools
-builder.Services.AddScoped<IPoolService, PoolService>();
+// polls
+builder.Services.AddScoped<IPollService, PollService>();
 // Options
 builder.Services.AddScoped<IOptionService, OptionService>();
 // Votes

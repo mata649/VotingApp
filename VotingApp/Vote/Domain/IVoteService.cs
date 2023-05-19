@@ -7,7 +7,7 @@ namespace VotingApp.Vote.Domain
     public interface IVoteService
     {
         public IResponse Create(CreateVoteDTO createVoteDTO);
-        public IResponse GetCountOfVotes(Guid poolID);
+        public IResponse GetCountOfVotes(Guid pollID);
         public IResponse AddVoteToDashboard(OptionEntity option);
 
     }

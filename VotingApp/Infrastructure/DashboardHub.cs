@@ -15,18 +15,18 @@ namespace VotingApp.Infrastructure
         }
 
 
-        public async Task JoinDashboard(Guid poolID)
+        public async Task JoinDashboard(Guid pollID)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, poolID.ToString());
-            var countResp = _voteService.GetCountOfVotes(poolID);
-            if (countResp.Type == 200 && countResp.Value is List<CountByOptionDTO> count) await Clients.Group(poolID.ToString())
+            await Groups.AddToGroupAsync(Context.ConnectionId, pollID.ToString());
+            var countResp = _voteService.GetCountOfVotes(pollID);
+            if (countResp.Type == 200 && countResp.Value is List<CountByOptionDTO> count) await Clients.Group(pollID.ToString())
                     .SendAsync("AwaitDashboardInfo", JsonSerializer.Serialize(count));
 
         }
 
-        public async Task ExitGroup(string poolID)
+        public async Task ExitGroup(string pollID)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, poolID.ToString());
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, pollID.ToString());
         }
 
     }

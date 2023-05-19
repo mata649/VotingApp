@@ -2,33 +2,32 @@
 using System.Text.Json.Serialization;
 using VotingApp.Base.Domain;
 using VotingApp.Option.Domain;
-using VotingApp.Pool.Domain;
 
-namespace VotingApp.Pool.Domain.DTO;
+namespace VotingApp.Poll.Domain.DTO;
 
-public class PoolOption
+public class PollOption
 {
 
     [Required, MaxLength(60)]
     public string Text { get; set; } = string.Empty;
-    public OptionEntity ToEntity(Guid poolID) => new()
+    public OptionEntity ToEntity(Guid pollID) => new()
     {
         ID = Guid.NewGuid(),
-        PoolID = poolID,
+        PollID = pollID,
         Text = Text
     };
 }
-public class CreatePoolDTO : CreateDTO<PoolEntity>
+public class CreatePollDTO : CreateDTO<PollEntity>
 {
 
     public string Question { get; set; } = string.Empty;
     [JsonIgnore]
     public Guid UserID { get; set; }
 
-    public virtual IEnumerable<PoolOption> Options { get; set; } = Enumerable.Empty<PoolOption>();
+    public virtual IEnumerable<PollOption> Options { get; set; } = Enumerable.Empty<PollOption>();
 
 
-    public override PoolEntity ToEntity() => new()
+    public override PollEntity ToEntity() => new()
     {
         ID = Guid.NewGuid(),
         CreatedAt = DateTime.UtcNow,
@@ -38,7 +37,7 @@ public class CreatePoolDTO : CreateDTO<PoolEntity>
     };
 
 
-    public List<OptionEntity> GetOptions(Guid poolID) => Options.Select(o => o.ToEntity(poolID)).ToList();
+    public List<OptionEntity> GetOptions(Guid pollID) => Options.Select(o => o.ToEntity(pollID)).ToList();
 
 }
 

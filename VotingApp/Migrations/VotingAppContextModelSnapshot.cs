@@ -28,7 +28,7 @@ namespace VotingApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("PoolID")
+                    b.Property<Guid>("pollID")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Text")
@@ -38,12 +38,12 @@ namespace VotingApp.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("PoolID");
+                    b.HasIndex("pollID");
 
                     b.ToTable("Option", (string)null);
                 });
 
-            modelBuilder.Entity("VotingApp.Pool.Domain.Pool", b =>
+            modelBuilder.Entity("VotingApp.poll.Domain.poll", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -64,7 +64,7 @@ namespace VotingApp.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Pool", (string)null);
+                    b.ToTable("poll", (string)null);
                 });
 
             modelBuilder.Entity("VotingApp.User.Domain.User", b =>
@@ -116,19 +116,19 @@ namespace VotingApp.Migrations
 
             modelBuilder.Entity("VotingApp.Option.Domain.Option", b =>
                 {
-                    b.HasOne("VotingApp.Pool.Domain.Pool", "Pool")
+                    b.HasOne("VotingApp.poll.Domain.poll", "poll")
                         .WithMany("Options")
-                        .HasForeignKey("PoolID")
+                        .HasForeignKey("pollID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Pool");
+                    b.Navigation("poll");
                 });
 
-            modelBuilder.Entity("VotingApp.Pool.Domain.Pool", b =>
+            modelBuilder.Entity("VotingApp.poll.Domain.poll", b =>
                 {
                     b.HasOne("VotingApp.User.Domain.User", "User")
-                        .WithMany("Pools")
+                        .WithMany("polls")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -160,14 +160,14 @@ namespace VotingApp.Migrations
                     b.Navigation("Votes");
                 });
 
-            modelBuilder.Entity("VotingApp.Pool.Domain.Pool", b =>
+            modelBuilder.Entity("VotingApp.poll.Domain.poll", b =>
                 {
                     b.Navigation("Options");
                 });
 
             modelBuilder.Entity("VotingApp.User.Domain.User", b =>
                 {
-                    b.Navigation("Pools");
+                    b.Navigation("polls");
 
                     b.Navigation("Votes");
                 });

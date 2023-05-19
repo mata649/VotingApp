@@ -12,7 +12,7 @@ public class OptionModel : IEntityTypeConfiguration<OptionEntity>
         builder.ToTable("Option");
         builder.HasKey(o => o.ID);
         builder.Property(o => o.Text).IsRequired().HasMaxLength(60);
-        builder.HasOne(o => o.Pool).WithMany(o => o.Options).HasForeignKey(o => o.PoolID);
+        builder.HasOne(o => o.Poll).WithMany(o => o.Options).HasForeignKey(o => o.PollID);
         builder.HasMany(o => o.Votes).WithOne(o => o.Option).HasForeignKey(o => o.OptionID);
     }
 }

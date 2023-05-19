@@ -1,7 +1,7 @@
 ﻿using VotingApp.Base.Domain;
 using VotingApp.Context;
 using VotingApp.Option.Domain;
-using VotingApp.Pool.Domain;
+using VotingApp.Poll.Domain;
 using VotingApp.User.Domain;
 using VotingApp.Vote.Domain;
 using VotingApp.Vote.Domain.DTO;
@@ -34,13 +34,13 @@ namespace VotingApp.Vote.Application
                 UserEntity? userFound = _unitOfWork.UserRepository.GetById(vote.UserID);
                 if (userFound is null) return new ResponseFailure("User was not found", 404);
 
-                // Check if the user has voted to avoid multiple votes of the same user in the same pool
+                // Check if the user has voted to avoid multiple votes of the same user in the same poll
                 Filters<VoteEntity> filters = new();
-                filters.Filter.Add(v => v.Option.PoolID == optionFound.PoolID && v.UserID == userFound.ID);
+                filters.Filter.Add(v => v.Option.PollID == optionFound.PollID && v.UserID == userFound.ID);
 
                 (List<VoteEntity> results, _, _) = _unitOfWork.VoteRepository.Get(filters, new Pagination());
 
-                if (results.Any()) return new ResponseFailure("You can't participate again in this pool", 403);
+                if (results.Any()) return new ResponseFailure("You can't participate again in this poll", 403);
 
                 _unitOfWork.VoteRepository.Create(vote);
                 _unitOfWork.Save();
@@ -61,11 +61,11 @@ namespace VotingApp.Vote.Application
         {
             try
             {
-                var list = _voteCountCache.GetCount(option.PoolID);
+                var list = _voteCountCache.GetCount(option.PollID);
               
                 if (list is null)
                 {
-                    list = _unitOfWork.VoteRepository.VotesByPool(option.PoolID);
+                    list = _unitOfWork.VoteRepository.VotesBypoll(option.PollID);
                     if (!list.Any()) return new ResponseFailure("Count was not found", 404);
                 }
                 else
@@ -76,7 +76,7 @@ namespace VotingApp.Vote.Application
                         return o;
                     }).ToList();
                 }
-                _voteCountCache.Set(option.PoolID, list);
+                _voteCountCache.Set(option.PollID, list);
                 return new ResponseSuccess(list, 200);
             }
             catch (Exception ex)
@@ -86,19 +86,19 @@ namespace VotingApp.Vote.Application
             }
         }
 
-        public IResponse GetCountOfVotes(Guid poolID)
+        public IResponse GetCountOfVotes(Guid pollID)
         {
             try
             {
-                var list = _voteCountCache.GetCount(poolID);
+                var list = _voteCountCache.GetCount(pollID);
 
                 if (list is null)
                 {
-                    list = _unitOfWork.VoteRepository.VotesByPool(poolID);
+                    list = _unitOfWork.VoteRepository.VotesBypoll(pollID);
                     if (!list.Any()) return new ResponseFailure("Count was not found", 404);
                 }
 
-                _voteCountCache.Set(poolID, list);
+                _voteCountCache.Set(pollID, list);
                 return new ResponseSuccess(list, 200);
             }
             catch (Exception ex)

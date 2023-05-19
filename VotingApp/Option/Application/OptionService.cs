@@ -1,5 +1,5 @@
 ﻿using VotingApp.Base.Domain;
-using VotingApp.Pool.Domain;
+using VotingApp.Poll.Domain;
 using VotingApp.Option.Domain;
 using VotingApp.Option.Domain.DTO;
 using VotingApp.Context;
@@ -22,9 +22,9 @@ namespace VotingApp.Option.Application
             try
             {
                 OptionEntity option = createOptionDTO.ToEntity();
-                PoolEntity? poolFound = _unitOfWork.PoolRepository.GetById(option.PoolID);
-                if (poolFound is null) return new ResponseFailure("Pool was not found", 404);
-                if (poolFound.UserID != createOptionDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
+                PollEntity? pollFound = _unitOfWork.PollRepository.GetById(option.PollID);
+                if (pollFound is null) return new ResponseFailure("Poll was not found", 404);
+                if (pollFound.UserID != createOptionDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
                 _unitOfWork.OptionRepository.Create(option);
                 _unitOfWork.Save();
                 return new ResponseSuccess(ResponseOptionDTO.FromOption(option), 201);
@@ -40,9 +40,9 @@ namespace VotingApp.Option.Application
         {
             try
             {
-                OptionEntity? optionFound = _unitOfWork.OptionRepository.GetById(deleteDTO.ID, o => o.Pool);
+                OptionEntity? optionFound = _unitOfWork.OptionRepository.GetById(deleteDTO.ID, o => o.Poll);
                 if (optionFound is null) return new ResponseFailure("Option was not found", 404);
-                if (optionFound.Pool.UserID != deleteDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
+                if (optionFound.Poll.UserID != deleteDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
                 _unitOfWork.OptionRepository.Delete(optionFound.ID);
                 _unitOfWork.Save();
                 return new ResponseSuccess(ResponseOptionDTO.FromOption(optionFound), 200);
@@ -98,12 +98,12 @@ namespace VotingApp.Option.Application
         {
             try
             {
-                OptionEntity pool = updateOptionDTO.ToEntity();
-                OptionEntity? optionFound = _unitOfWork.OptionRepository.GetById(pool.ID, o => o.Pool);
+                OptionEntity option = updateOptionDTO.ToEntity();
+                OptionEntity? optionFound = _unitOfWork.OptionRepository.GetById(option.ID, o => o.Poll);
                 if (optionFound is null) return new ResponseFailure("Option was not found", 404);
-                if (optionFound.Pool.UserID != updateOptionDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
+                if (optionFound.Poll.UserID != updateOptionDTO.CurrentUserID) return new ResponseFailure("Unauthorized", 401);
 
-                optionFound.Text = pool.Text;
+                optionFound.Text = option.Text;
                 _unitOfWork.OptionRepository.Update(optionFound);
                 _unitOfWork.Save();
                 return new ResponseSuccess(ResponseOptionDTO.FromOption(optionFound), 200);

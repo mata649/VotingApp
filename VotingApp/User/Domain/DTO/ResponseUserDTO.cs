@@ -1,5 +1,5 @@
 ﻿using VotingApp.Base.Domain;
-using VotingApp.Pool.Domain;
+using VotingApp.Poll.Domain;
 using VotingApp.User.Domain;
 using VotingApp.Vote.Domain;
 

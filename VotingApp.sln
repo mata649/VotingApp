@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VotingApp", "VotingApp\Voti
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{078EBB3F-7374-4C17-9BD5-D6D19D33A291}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VotingApp.Tests", "VotingApp.Tests\VotingApp.Tests.csproj", "{BE07C788-2F52-479F-B728-CEB7A4A53536}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VotingApp.Tests", "VotingApp.Tests\VotingApp.Tests.csproj", "{E78ED17D-281A-4DF8-A778-9A3591B91769}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{078EBB3F-7374-4C17-9BD5-D6D19D33A291}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{078EBB3F-7374-4C17-9BD5-D6D19D33A291}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{078EBB3F-7374-4C17-9BD5-D6D19D33A291}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE07C788-2F52-479F-B728-CEB7A4A53536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE07C788-2F52-479F-B728-CEB7A4A53536}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE07C788-2F52-479F-B728-CEB7A4A53536}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE07C788-2F52-479F-B728-CEB7A4A53536}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E78ED17D-281A-4DF8-A778-9A3591B91769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E78ED17D-281A-4DF8-A778-9A3591B91769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E78ED17D-281A-4DF8-A778-9A3591B91769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E78ED17D-281A-4DF8-A778-9A3591B91769}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

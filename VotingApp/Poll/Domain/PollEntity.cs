@@ -1,8 +1,8 @@
 ﻿using VotingApp.User.Domain;
 using VotingApp.Option.Domain;
 using VotingApp.Base.Domain;
-namespace VotingApp.Pool.Domain;
-public class PoolEntity : Entity
+namespace VotingApp.Poll.Domain;
+public class PollEntity : Entity
 {
 
 

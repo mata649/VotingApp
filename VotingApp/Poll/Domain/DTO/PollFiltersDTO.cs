@@ -1,15 +1,13 @@
-﻿using System.Linq.Expressions;
-using VotingApp.Base.Domain;
-using VotingApp.Pool.Domain;
+﻿using VotingApp.Base.Domain;
 
-namespace VotingApp.Pool.Domain.DTO
+namespace VotingApp.Poll.Domain.DTO
 {
-    public class PoolFiltersDTO
+    public class PollFiltersDTO
     {
-        public Filters<PoolEntity> Filters { get; set; } = new();
+        public Filters<PollEntity> Filters { get; set; } = new();
         public Pagination Pagination { get; set; } = new();
 
-        public PoolFiltersDTO(ushort currentPage, ushort pageSize, string question, Guid userID)
+        public PollFiltersDTO(ushort currentPage, ushort pageSize, string question, Guid userID)
         {
             Pagination.CurrentPage = currentPage;
             Pagination.PageSize = pageSize;

@@ -1,42 +1,41 @@
-﻿using Castle.Core.Logging;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using VotingApp.Base.Domain;
 using VotingApp.Context;
-using VotingApp.Pool.Application;
-using VotingApp.Pool.Domain;
-using VotingApp.Pool.Domain.DTO;
+using VotingApp.Poll.Application;
+using VotingApp.Poll.Domain;
+using VotingApp.Poll.Domain.DTO;
 using VotingApp.User.Domain;
 
-namespace VotingApp.Tests.Pool.Application
+namespace VotingApp.Tests.Poll.Application
 {
-    public class PoolServiceTests : IDisposable
+    public class PollServiceTests : IDisposable
     {
         private bool disposedValue;
 
-        public readonly PoolService _poolServiceMock;
+        public readonly PollService _pollServiceMock;
 
         public readonly Mock<IUserRepository> _userRepositoryMock;
 
-        public readonly Mock<IPoolRepository> _poolRepositoryMock;
+        public readonly Mock<IPollRepository> _pollRepositoryMock;
 
-        public PoolServiceTests()
+        public PollServiceTests()
         {
             var votingAppContextMock = new Mock<VotingAppContext>();
             var unitOfWorkMock = new Mock<UnitOfWork>(votingAppContextMock.Object);
             _userRepositoryMock = new Mock<IUserRepository>();
-            _poolRepositoryMock = new Mock<IPoolRepository>();
+            _pollRepositoryMock = new Mock<IPollRepository>();
 
-            var logger = new Mock<ILogger<PoolService>>();
+            var logger = new Mock<ILogger<PollService>>();
 
             unitOfWorkMock
                 .SetupGet(uow => uow.UserRepository)
                 .Returns(_userRepositoryMock.Object);
 
-            unitOfWorkMock .SetupGet(uow => uow.PoolRepository)
-                .Returns(_poolRepositoryMock.Object);
+            unitOfWorkMock.SetupGet(uow => uow.PollRepository)
+                .Returns(_pollRepositoryMock.Object);
 
-            _poolServiceMock = new PoolService(unitOfWorkMock.Object, logger.Object);
+            _pollServiceMock = new PollService(unitOfWorkMock.Object, logger.Object);
 
         }
 
@@ -44,13 +43,28 @@ namespace VotingApp.Tests.Pool.Application
         public void Create_UnexpectedError_ReturnsInternalError()
         {
             // Arrange
-            CreatePoolDTO poolDTO = new();
+            CreatePollDTO pollDTO = new();
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(urm=>urm.GetById(poolDTO.UserID))
+            _userRepositoryMock.Setup(urm => urm.GetById(pollDTO.UserID))
                 .Throws(new Exception());
             // Act
-            IResponse response = _poolServiceMock.Create(poolDTO);
-            
+            IResponse response = _pollServiceMock.Create(pollDTO);
+
+            // Assert
+            Assert.Equivalent(expectedResponse, response);
+        }
+
+        [Fact]
+        public void Create_UserNotFound_ReturnsNotFoundError()
+        {
+            // Arrange
+            CreatePollDTO pollDTO = new();
+            IResponse expectedResponse = new ResponseFailure("User does not exist", 404);
+            _userRepositoryMock.Setup(urm => urm.GetById(pollDTO.UserID))
+                .Returns<UserEntity?>(null);
+            // Act
+            IResponse response = _pollServiceMock.Create(pollDTO);
+
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -61,7 +75,7 @@ namespace VotingApp.Tests.Pool.Application
             {
                 if (disposing)
                 {
-                    _poolRepositoryMock.Reset();
+                    _pollRepositoryMock.Reset();
                     _userRepositoryMock.Reset();
                 }
 
@@ -72,7 +86,7 @@ namespace VotingApp.Tests.Pool.Application
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~PoolServiceTests()
+        // ~PollServiceTests()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);

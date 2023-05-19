@@ -8,7 +8,7 @@ namespace VotingApp.Option.Domain.DTO
     public class CreateOptionDTO : CreateDTO<OptionEntity>
     {
         [Required]
-        public Guid PoolID { get; set; }
+        public Guid PollID { get; set; }
         [Required, MaxLength(60)]
         public string Text { get; set; } = string.Empty;
         [JsonIgnore]
@@ -16,7 +16,7 @@ namespace VotingApp.Option.Domain.DTO
         public override OptionEntity ToEntity() => new()
         {
             ID = Guid.NewGuid(),
-            PoolID = PoolID,
+            PollID = PollID,
             Text = Text
         };
 

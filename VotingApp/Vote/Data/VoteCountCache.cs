@@ -7,15 +7,15 @@ namespace VotingApp.Vote.Data
     {
         private readonly Dictionary<Guid, List<CountByOptionDTO>> _cache = new();
 
-        public List<CountByOptionDTO>? GetCount(Guid poolID)
+        public List<CountByOptionDTO>? GetCount(Guid pollID)
         {
-            _cache.TryGetValue(poolID, out var list);
+            _cache.TryGetValue(pollID, out var list);
             return list;
         }
 
-        public void Set(Guid poolID, List<CountByOptionDTO> list)
+        public void Set(Guid pollID, List<CountByOptionDTO> list)
         {
-            _cache[poolID] = list;
+            _cache[pollID] = list;
         }
 
     }

@@ -12,10 +12,10 @@ namespace VotingApp.Vote.Data
         {
         }
 
-        public List<CountByOptionDTO> VotesByPool(Guid poolID)
+        public List<CountByOptionDTO> VotesBypoll(Guid pollID)
         {
             var result = from option in Context.Options
-                         where option.PoolID == poolID
+                         where option.PollID == pollID
                          join vote in Context.Votes on option.ID equals vote.OptionID into optionVotes
                          select new CountByOptionDTO
                          {
