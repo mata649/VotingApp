@@ -9,10 +9,10 @@ using VotingApp.User.Domain.DTO;
 namespace VotingApp.User.Application;
 public class UserService : IUserService
 {
-    private readonly UnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger _logger;
 
-    public UserService(UnitOfWork unitOfWork, ILogger<UserService> logger)
+    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;

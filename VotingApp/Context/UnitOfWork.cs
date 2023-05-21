@@ -9,7 +9,7 @@ using VotingApp.Vote.Domain;
 
 namespace VotingApp.Context
 {
-    public class UnitOfWork : IDisposable
+    public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private bool disposedValue = false;
         private readonly VotingAppContext _appContext;

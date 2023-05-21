@@ -10,11 +10,11 @@ namespace VotingApp.Vote.Application
 {
     public class VoteService : IVoteService
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
         private readonly IVoteCountCache _voteCountCache;
 
-        public VoteService(UnitOfWork unitOfWork, ILogger<VoteService> logger, IVoteCountCache voteCountCache)
+        public VoteService(IUnitOfWork unitOfWork, ILogger<VoteService> logger, IVoteCountCache voteCountCache)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

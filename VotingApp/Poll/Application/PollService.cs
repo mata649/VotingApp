@@ -9,9 +9,9 @@ namespace VotingApp.Poll.Application;
 public class PollService : IPollService
 {
     private readonly ILogger _logger;
-    private readonly UnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public PollService(UnitOfWork unitOfWork, ILogger<PollService> logger)
+    public PollService(IUnitOfWork unitOfWork, ILogger<PollService> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;

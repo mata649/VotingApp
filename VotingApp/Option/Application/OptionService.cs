@@ -8,10 +8,10 @@ namespace VotingApp.Option.Application
 {
     public class OptionService : IOptionService
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
 
-        public OptionService(UnitOfWork unitOfWork, ILogger<OptionService> logger)
+        public OptionService(IUnitOfWork unitOfWork, ILogger<OptionService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
