@@ -21,9 +21,8 @@ namespace VotingApp.Tests.User.Application
         public UserServiceTests()
         {
             var logger = new Mock<ILogger<UserService>>();
-            var votingAppContext = new Mock<VotingAppContext>();
 
-            var unitOfWorkMock = new Mock<UnitOfWork>(votingAppContext.Object);
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
 
             _userRepositoryMock = new Mock<IUserRepository>();
             unitOfWorkMock
@@ -218,6 +217,7 @@ namespace VotingApp.Tests.User.Application
             IResponse resp = _userServiceMock.ChangePassword(changePasswordDTO);
             // Assert
             Assert.Equivalent(resp, expectedResponse);
+            _userRepositoryMock.Verify(urm => urm.Update(userFound), Times.Once);
         }
         [Fact]
         public void Create_UnexpectedError_ReturnsInternalError()
@@ -294,6 +294,7 @@ namespace VotingApp.Tests.User.Application
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
+            _userRepositoryMock.Verify(urm => urm.Create(userToCreate), Times.Once);
 
         }
 
@@ -415,6 +416,8 @@ namespace VotingApp.Tests.User.Application
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
+            _userRepositoryMock.Verify(urm => urm.Update(userFound), Times.Once);
+
 
         }
 
@@ -452,6 +455,10 @@ namespace VotingApp.Tests.User.Application
 
             // Assert
             Assert.Equivalent(expectedResponse, resp);
+            _userRepositoryMock.Verify(urm => urm.Get(
+                userFiltersDTO.Filters, userFiltersDTO.Pagination
+                ), Times.Once);
+
         }
         [Fact]
         public void Get_Withsers_ReturnsResponseSuccessWithData()
@@ -478,6 +485,9 @@ namespace VotingApp.Tests.User.Application
 
             // Assert
             Assert.Equivalent(expectedResponse, resp);
+            _userRepositoryMock.Verify(urm => urm.Get(
+             userFiltersDTO.Filters, userFiltersDTO.Pagination
+             ), Times.Once);
         }
 
         [Fact]
@@ -533,6 +543,7 @@ namespace VotingApp.Tests.User.Application
             IResponse resp = _userServiceMock.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
+            _userRepositoryMock.Verify(urm => urm.Delete(user.ID), Times.Once);
 
         }
 
@@ -569,7 +580,7 @@ namespace VotingApp.Tests.User.Application
             GetByIDDTO getByIDDTO = new() { ID = Guid.NewGuid() };
             UserEntity userFound = new()
             {
-                ID = Guid.NewGuid(),
+                ID = getByIDDTO.ID,
                 Name = "John Doe",
                 Email = "john@doe.com",
                 Password = "testing"
@@ -580,6 +591,7 @@ namespace VotingApp.Tests.User.Application
             IResponse resp = _userServiceMock.GetById(getByIDDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
+            _userRepositoryMock.Verify(urm => urm.GetById(getByIDDTO.ID), Times.Once);
 
         }
 
