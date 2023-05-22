@@ -11,16 +11,13 @@ namespace VotingApp.Context
 {
     public interface IUnitOfWork
     {
-        public virtual IUserRepository UserRepository { get => UserRepository; }
-
-        public virtual IPollRepository PollRepository { get => PollRepository; }
-
-        public virtual IOptionRepository OptionRepository { get => OptionRepository; }
-
-        public virtual IVoteRepository VoteRepository { get => VoteRepository; }
+        public IUserRepository UserRepository { get => UserRepository; }
+        public IPollRepository PollRepository { get => PollRepository; }
+        public IOptionRepository OptionRepository { get => OptionRepository; }
+        public IVoteRepository VoteRepository { get => VoteRepository; }
 
 
         public void Save();
-        
+
     }
 }

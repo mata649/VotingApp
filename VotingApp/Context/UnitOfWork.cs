@@ -14,16 +14,16 @@ namespace VotingApp.Context
         private bool disposedValue = false;
         private readonly VotingAppContext _appContext;
         private IUserRepository? _userRepository;
-        public virtual IUserRepository UserRepository { get => _userRepository ??= new UserRepository(_appContext); }
+        public IUserRepository UserRepository { get => _userRepository ??= new UserRepository(_appContext); }
 
         private IPollRepository? _pollRepository;
-        public virtual IPollRepository PollRepository { get => _pollRepository ??= new PollRepository(_appContext); }
+        public IPollRepository PollRepository { get => _pollRepository ??= new PollRepository(_appContext); }
 
         private IOptionRepository? _optionRepository;
-        public virtual IOptionRepository OptionRepository { get => _optionRepository ??= new OptionRepository(_appContext); }
+        public IOptionRepository OptionRepository { get => _optionRepository ??= new OptionRepository(_appContext); }
 
         private IVoteRepository? _voteRepository;
-        public virtual IVoteRepository VoteRepository { get => _voteRepository ??= new VoteRepository(_appContext); }
+        public IVoteRepository VoteRepository { get => _voteRepository ??= new VoteRepository(_appContext); }
 
         public UnitOfWork(VotingAppContext appContext) => _appContext = appContext;
 
