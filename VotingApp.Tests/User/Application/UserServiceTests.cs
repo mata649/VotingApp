@@ -14,7 +14,7 @@ namespace VotingApp.Tests.User.Application
 {
     public class UserServiceTests : IDisposable
     {
-        private readonly IUserService _userServiceMock;
+        private readonly IUserService _userService;
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private bool _disposedValue;
 
@@ -28,7 +28,7 @@ namespace VotingApp.Tests.User.Application
             unitOfWorkMock
                 .SetupGet(uow => uow.UserRepository)
                 .Returns(_userRepositoryMock.Object);
-            _userServiceMock = new UserService(unitOfWorkMock.Object, logger.Object);
+            _userService = new UserService(unitOfWorkMock.Object, logger.Object);
         }
         private string HashPassword(string password)
         {
@@ -43,9 +43,9 @@ namespace VotingApp.Tests.User.Application
         {   // Arrange
             LoginUserDTO loginUserDTO = new();
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(loginUserDTO.Email)).Throws(new Exception());
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(loginUserDTO.Email)).Throws(new Exception());
             // Act
-            IResponse resp = _userServiceMock.Login(loginUserDTO);
+            IResponse resp = _userService.Login(loginUserDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
         }
@@ -55,10 +55,10 @@ namespace VotingApp.Tests.User.Application
         {   // Arrange
             LoginUserDTO loginUserDTO = new() { Email = "john@doe.com" };
             IResponse expectedResponse = new ResponseFailure("Invalid credentials", 401);
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(loginUserDTO.Email))
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(loginUserDTO.Email))
                 .Returns<UserEntity?>(null);
             // Act
-            IResponse resp = _userServiceMock.Login(loginUserDTO);
+            IResponse resp = _userService.Login(loginUserDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
         }
@@ -76,10 +76,10 @@ namespace VotingApp.Tests.User.Application
                 Password = "fdd8e762939f2e2c81d22501"
             };
             IResponse expectedResponse = new ResponseFailure("Invalid credentials", 401);
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(loginUserDTO.Email))
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(loginUserDTO.Email))
                 .Returns(userFound);
             // Act
-            IResponse resp = _userServiceMock.Login(loginUserDTO);
+            IResponse resp = _userService.Login(loginUserDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
         }
@@ -101,10 +101,10 @@ namespace VotingApp.Tests.User.Application
                 Password = HashPassword("Testing1234")
             };
             IResponse expectedResponse = new ResponseSuccess(ResponseUserDTO.FromUser(userFound), 200);
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(loginUserDTO.Email))
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(loginUserDTO.Email))
                 .Returns(userFound);
             // Act
-            IResponse resp = _userServiceMock.Login(loginUserDTO);
+            IResponse resp = _userService.Login(loginUserDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
         }
@@ -119,9 +119,9 @@ namespace VotingApp.Tests.User.Application
                 OldPassword = "OldPassword"
             };
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(urm => urm.GetById(changePasswordDTO.ID)).Throws(new Exception());
+            _userRepositoryMock.Setup(repo => repo.GetById(changePasswordDTO.ID)).Throws(new Exception());
             // Act
-            IResponse resp = _userServiceMock.ChangePassword(changePasswordDTO);
+            IResponse resp = _userService.ChangePassword(changePasswordDTO);
             // Assert
             Assert.Equivalent(resp, expectedResponse);
         }
@@ -138,10 +138,10 @@ namespace VotingApp.Tests.User.Application
             };
             IResponse expectedResponse = new ResponseFailure("User was not found", 404);
             _userRepositoryMock
-                .Setup(urm => urm.GetById(changePasswordDTO.ID))
+                .Setup(repo => repo.GetById(changePasswordDTO.ID))
                 .Returns<UserEntity?>(null);
             // Act
-            IResponse resp = _userServiceMock.ChangePassword(changePasswordDTO);
+            IResponse resp = _userService.ChangePassword(changePasswordDTO);
             // Assert
             Assert.Equivalent(resp, expectedResponse);
         }
@@ -163,10 +163,10 @@ namespace VotingApp.Tests.User.Application
             };
             IResponse expectedResponse = new ResponseFailure("Unauthorized", 401);
             _userRepositoryMock
-                .Setup(urm => urm.GetById(changePasswordDTO.ID))
+                .Setup(repo => repo.GetById(changePasswordDTO.ID))
                 .Returns(userFound);
             // Act
-            IResponse resp = _userServiceMock.ChangePassword(changePasswordDTO);
+            IResponse resp = _userService.ChangePassword(changePasswordDTO);
             // Assert
             Assert.Equivalent(resp, expectedResponse);
         }
@@ -187,10 +187,10 @@ namespace VotingApp.Tests.User.Application
             };
             IResponse expectedResponse = new ResponseFailure("Password incorrect", 401);
             _userRepositoryMock
-                .Setup(urm => urm.GetById(changePasswordDTO.ID))
+                .Setup(repo => repo.GetById(changePasswordDTO.ID))
                 .Returns(userFound);
             // Act
-            IResponse resp = _userServiceMock.ChangePassword(changePasswordDTO);
+            IResponse resp = _userService.ChangePassword(changePasswordDTO);
             // Assert
             Assert.Equivalent(resp, expectedResponse);
         }
@@ -211,13 +211,13 @@ namespace VotingApp.Tests.User.Application
             };
             IResponse expectedResponse = new ResponseSuccess(ResponseUserDTO.FromUser(userFound), 200);
             _userRepositoryMock
-                .Setup(urm => urm.GetById(changePasswordDTO.ID))
+                .Setup(repo => repo.GetById(changePasswordDTO.ID))
                 .Returns(userFound);
             // Act
-            IResponse resp = _userServiceMock.ChangePassword(changePasswordDTO);
+            IResponse resp = _userService.ChangePassword(changePasswordDTO);
             // Assert
             Assert.Equivalent(resp, expectedResponse);
-            _userRepositoryMock.Verify(urm => urm.Update(userFound), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.Update(userFound), Times.Once);
         }
         [Fact]
         public void Create_UnexpectedError_ReturnsInternalError()
@@ -230,11 +230,11 @@ namespace VotingApp.Tests.User.Application
                 Password = "JohnDoe1234"
             };
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(createUserDTO.Email))
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(createUserDTO.Email))
                 .Throws(new Exception());
 
             // Act
-            var response = _userServiceMock.Create(createUserDTO);
+            var response = _userService.Create(createUserDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -252,7 +252,7 @@ namespace VotingApp.Tests.User.Application
                 Password = "JohnDoe1234"
             };
             IResponse expectedResponse = new ResponseFailure("The email is already registered", 409);
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(createUserDTO.Email))
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(createUserDTO.Email))
                 .Returns(new UserEntity()
                 {
                     ID = Guid.NewGuid(),
@@ -261,7 +261,7 @@ namespace VotingApp.Tests.User.Application
                 });
 
             // Act
-            var response = _userServiceMock.Create(createUserDTO);
+            var response = _userService.Create(createUserDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -284,17 +284,17 @@ namespace VotingApp.Tests.User.Application
             };
             IResponse expectedResponse = new ResponseSuccess(ResponseUserDTO.FromUser(userToCreate), 201);
 
-            _userRepositoryMock.Setup(ur => ur.GetByEmail(userToCreate.Email))
+            _userRepositoryMock.Setup(repo => repo.GetByEmail(userToCreate.Email))
                                .Returns<UserEntity?>(null);
 
             createUserDTO.Setup(dto => dto.ToEntity()).Returns(userToCreate);
 
             // Act
-            var response = _userServiceMock.Create(createUserDTO.Object);
+            var response = _userService.Create(createUserDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _userRepositoryMock.Verify(urm => urm.Create(userToCreate), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.Create(userToCreate), Times.Once);
 
         }
 
@@ -314,12 +314,12 @@ namespace VotingApp.Tests.User.Application
 
             updateUserDTO.Setup(dto => dto.ToEntity())
                 .Returns(userToUpdate);
-            _userRepositoryMock.Setup(ur => ur.GetById(userToUpdate.ID))
+            _userRepositoryMock.Setup(repo => repo.GetById(userToUpdate.ID))
                 .Throws(new Exception());
 
 
             // Act
-            var response = _userServiceMock.Update(updateUserDTO.Object);
+            var response = _userService.Update(updateUserDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -343,12 +343,12 @@ namespace VotingApp.Tests.User.Application
             updateUserDTO.Setup(dto => dto.ToEntity())
                 .Returns(userToUpdate);
 
-            _userRepositoryMock.Setup(ur => ur.GetById(userToUpdate.ID))
+            _userRepositoryMock.Setup(repo => repo.GetById(userToUpdate.ID))
                 .Returns<UserEntity?>(null);
 
 
             // Act
-            var response = _userServiceMock.Update(updateUserDTO.Object);
+            var response = _userService.Update(updateUserDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -374,12 +374,12 @@ namespace VotingApp.Tests.User.Application
             updateUserDTO.Setup(dto => dto.ToEntity())
                 .Returns(userToUpdate);
 
-            _userRepositoryMock.Setup(ur => ur.GetById(userToUpdate.ID))
+            _userRepositoryMock.Setup(repo => repo.GetById(userToUpdate.ID))
                 .Returns(userFound);
 
 
             // Act
-            var response = _userServiceMock.Update(updateUserDTO.Object);
+            var response = _userService.Update(updateUserDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -407,16 +407,16 @@ namespace VotingApp.Tests.User.Application
             updateUserDTO.Setup(dto => dto.ToEntity())
                 .Returns(userToUpdate);
 
-            _userRepositoryMock.Setup(ur => ur.GetById(userToUpdate.ID))
+            _userRepositoryMock.Setup(repo => repo.GetById(userToUpdate.ID))
                 .Returns(userFound);
 
 
             // Act
-            var response = _userServiceMock.Update(updateUserDTO.Object);
+            var response = _userService.Update(updateUserDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _userRepositoryMock.Verify(urm => urm.Update(userFound), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.Update(userFound), Times.Once);
 
 
         }
@@ -427,10 +427,11 @@ namespace VotingApp.Tests.User.Application
             // Arrange
             UserFiltersDTO userFiltersDTO = new(1, 10, "", "");
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(urm => urm.Get(userFiltersDTO.Filters, userFiltersDTO.Pagination))
+            _userRepositoryMock
+                .Setup(repo => repo.Get(userFiltersDTO.Filters, userFiltersDTO.Pagination))
                 .Throws(new Exception());
             // Act
-            IResponse resp = _userServiceMock.Get(userFiltersDTO);
+            IResponse resp = _userService.Get(userFiltersDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, resp);
@@ -448,14 +449,14 @@ namespace VotingApp.Tests.User.Application
                 Data = Enumerable.Empty<ResponseUserDTO>()
             }, 200);
 
-            _userRepositoryMock.Setup(urm => urm.Get(userFiltersDTO.Filters, userFiltersDTO.Pagination))
-                .Returns((new List<UserEntity>(), 1, 0));
+            _userRepositoryMock.Setup(repo => repo.Get(userFiltersDTO.Filters, userFiltersDTO.Pagination))
+                .Returns((new(), 1, 0));
             // Act
-            IResponse resp = _userServiceMock.Get(userFiltersDTO);
+            IResponse resp = _userService.Get(userFiltersDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, resp);
-            _userRepositoryMock.Verify(urm => urm.Get(
+            _userRepositoryMock.Verify(repo => repo.Get(
                 userFiltersDTO.Filters, userFiltersDTO.Pagination
                 ), Times.Once);
 
@@ -478,14 +479,14 @@ namespace VotingApp.Tests.User.Application
                 Data = expectedUsers.Select(ResponseUserDTO.FromUser)
             }, 200);
 
-            _userRepositoryMock.Setup(urm => urm.Get(userFiltersDTO.Filters, userFiltersDTO.Pagination))
+            _userRepositoryMock.Setup(repo => repo.Get(userFiltersDTO.Filters, userFiltersDTO.Pagination))
                 .Returns((expectedUsers, 1, 10));
             // Act
-            IResponse resp = _userServiceMock.Get(userFiltersDTO);
+            IResponse resp = _userService.Get(userFiltersDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, resp);
-            _userRepositoryMock.Verify(urm => urm.Get(
+            _userRepositoryMock.Verify(repo => repo.Get(
              userFiltersDTO.Filters, userFiltersDTO.Pagination
              ), Times.Once);
         }
@@ -496,9 +497,9 @@ namespace VotingApp.Tests.User.Application
             // Arrange
             DeleteDTO deleteDTO = new() { ID = Guid.NewGuid(), CurrentUserID = Guid.NewGuid() };
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(urm => urm.GetById(deleteDTO.ID)).Throws(new Exception());
+            _userRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID)).Throws(new Exception());
             // Act
-            IResponse resp = _userServiceMock.Delete(deleteDTO);
+            IResponse resp = _userService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
 
@@ -509,9 +510,9 @@ namespace VotingApp.Tests.User.Application
             // Arrange
             DeleteDTO deleteDTO = new() { ID = Guid.NewGuid(), CurrentUserID = Guid.NewGuid() };
             IResponse expectedResponse = new ResponseFailure("User was not found", 404);
-            _userRepositoryMock.Setup(urm => urm.GetById(deleteDTO.ID)).Returns<UserEntity?>(null);
+            _userRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID)).Returns<UserEntity?>(null);
             // Act
-            IResponse resp = _userServiceMock.Delete(deleteDTO);
+            IResponse resp = _userService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
 
@@ -523,9 +524,9 @@ namespace VotingApp.Tests.User.Application
             UserEntity user = new() { ID = Guid.NewGuid() };
             DeleteDTO deleteDTO = new() { ID = user.ID, CurrentUserID = Guid.NewGuid() };
             IResponse expectedResponse = new ResponseFailure("Unauthorized", 401);
-            _userRepositoryMock.Setup(urm => urm.GetById(deleteDTO.ID)).Returns(user);
+            _userRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID)).Returns(user);
             // Act
-            IResponse resp = _userServiceMock.Delete(deleteDTO);
+            IResponse resp = _userService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
 
@@ -538,12 +539,12 @@ namespace VotingApp.Tests.User.Application
             UserEntity user = new() { ID = Guid.NewGuid() };
             DeleteDTO deleteDTO = new() { ID = user.ID, CurrentUserID = user.ID };
             IResponse expectedResponse = new ResponseSuccess(ResponseUserDTO.FromUser(user), 200);
-            _userRepositoryMock.Setup(urm => urm.GetById(deleteDTO.ID)).Returns(user);
+            _userRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID)).Returns(user);
             // Act
-            IResponse resp = _userServiceMock.Delete(deleteDTO);
+            IResponse resp = _userService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
-            _userRepositoryMock.Verify(urm => urm.Delete(user.ID), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.Delete(user.ID), Times.Once);
 
         }
 
@@ -553,9 +554,9 @@ namespace VotingApp.Tests.User.Application
             // Arrange
             GetByIDDTO getByIDDTO = new() { ID = Guid.NewGuid() };
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(urm => urm.GetById(getByIDDTO.ID)).Throws(new Exception());
+            _userRepositoryMock.Setup(repo => repo.GetById(getByIDDTO.ID)).Throws(new Exception());
             // Act
-            IResponse resp = _userServiceMock.GetById(getByIDDTO);
+            IResponse resp = _userService.GetById(getByIDDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
         }
@@ -565,9 +566,9 @@ namespace VotingApp.Tests.User.Application
             // Arrange
             GetByIDDTO getByIDDTO = new() { ID = Guid.NewGuid() };
             IResponse expectedResponse = new ResponseFailure("User was not found", 404);
-            _userRepositoryMock.Setup(urm => urm.GetById(getByIDDTO.ID)).Returns<UserEntity?>(null);
+            _userRepositoryMock.Setup(repo => repo.GetById(getByIDDTO.ID)).Returns<UserEntity?>(null);
             // Act
-            IResponse resp = _userServiceMock.GetById(getByIDDTO);
+            IResponse resp = _userService.GetById(getByIDDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
 
@@ -586,12 +587,12 @@ namespace VotingApp.Tests.User.Application
                 Password = "testing"
             };
             IResponse expectedResponse = new ResponseSuccess(ResponseUserDTO.FromUser(userFound), 200);
-            _userRepositoryMock.Setup(urm => urm.GetById(getByIDDTO.ID)).Returns(userFound);
+            _userRepositoryMock.Setup(repo => repo.GetById(getByIDDTO.ID)).Returns(userFound);
             // Act
-            IResponse resp = _userServiceMock.GetById(getByIDDTO);
+            IResponse resp = _userService.GetById(getByIDDTO);
             // Assert
             Assert.Equivalent(expectedResponse, resp);
-            _userRepositoryMock.Verify(urm => urm.GetById(getByIDDTO.ID), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.GetById(getByIDDTO.ID), Times.Once);
 
         }
 

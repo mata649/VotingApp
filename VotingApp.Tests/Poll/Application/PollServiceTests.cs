@@ -14,7 +14,7 @@ namespace VotingApp.Tests.Poll.Application
     {
         private bool disposedValue;
 
-        public readonly PollService _pollServiceMock;
+        public readonly PollService _pollService;
 
         public readonly Mock<IUserRepository> _userRepositoryMock;
 
@@ -42,7 +42,7 @@ namespace VotingApp.Tests.Poll.Application
                 .SetupGet(uow => uow.OptionRepository)
                 .Returns(_optionRepositoryMock.Object);
 
-            _pollServiceMock = new PollService(unitOfWorkMock.Object, logger.Object);
+            _pollService = new PollService(unitOfWorkMock.Object, logger.Object);
 
         }
 
@@ -52,10 +52,10 @@ namespace VotingApp.Tests.Poll.Application
             // Arrange
             CreatePollDTO pollDTO = new();
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
-            _userRepositoryMock.Setup(urm => urm.GetById(pollDTO.UserID))
+            _userRepositoryMock.Setup(repo => repo.GetById(pollDTO.UserID))
                 .Throws(new Exception());
             // Act
-            IResponse response = _pollServiceMock.Create(pollDTO);
+            IResponse response = _pollService.Create(pollDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -67,10 +67,10 @@ namespace VotingApp.Tests.Poll.Application
             // Arrange
             CreatePollDTO pollDTO = new();
             IResponse expectedResponse = new ResponseFailure("User does not exist", 404);
-            _userRepositoryMock.Setup(urm => urm.GetById(pollDTO.UserID))
+            _userRepositoryMock.Setup(repo => repo.GetById(pollDTO.UserID))
                 .Returns<UserEntity?>(null);
             // Act
-            IResponse response = _pollServiceMock.Create(pollDTO);
+            IResponse response = _pollService.Create(pollDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -91,18 +91,19 @@ namespace VotingApp.Tests.Poll.Application
 
             IResponse expectedResponse = new ResponseSuccess(ResponsePollDTO.FromPoll(pollEntity), 201);
 
-            _userRepositoryMock.Setup(urm => urm.GetById(pollEntity.UserID))
+            _userRepositoryMock
+                .Setup(repo => repo.GetById(pollEntity.UserID))
                 .Returns(new UserEntity());
 
             pollDTO.Setup(dto => dto.ToEntity()).Returns(pollEntity);
             // Act
-            IResponse response = _pollServiceMock.Create(pollDTO.Object);
+            IResponse response = _pollService.Create(pollDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _pollRepositoryMock.Verify(prm => prm.Create(pollEntity), Times.Once);
+            _pollRepositoryMock.Verify(repo => repo.Create(pollEntity), Times.Once);
             // Checks if the response wasn't called due to we are not adding options to the pollDTO
-            _optionRepositoryMock.Verify(orm => orm.Create(It.IsAny<OptionEntity>()), Times.Never);
+            _optionRepositoryMock.Verify(repo => repo.Create(It.IsAny<OptionEntity>()), Times.Never);
         }
 
         [Fact]
@@ -127,30 +128,30 @@ namespace VotingApp.Tests.Poll.Application
 
             IResponse expectedResponse = new ResponseSuccess(ResponsePollDTO.FromPoll(pollEntity), 201);
 
-            _userRepositoryMock.Setup(urm => urm.GetById(pollEntity.UserID))
+            _userRepositoryMock.Setup(repo => repo.GetById(pollEntity.UserID))
                 .Returns(new UserEntity());
             pollDTO.SetupAllProperties();
             pollDTO.Setup(dto => dto.ToEntity()).Returns(pollEntity);
             pollDTO.Object.Options = options;
 
             // Act
-            IResponse response = _pollServiceMock.Create(pollDTO.Object);
+            IResponse response = _pollService.Create(pollDTO.Object);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _pollRepositoryMock.Verify(prm => prm.Create(pollEntity), Times.Once);
+            _pollRepositoryMock.Verify(repo => repo.Create(pollEntity), Times.Once);
             // Checks if the response was called twice due to we are adding options to the pollDTO
-            _optionRepositoryMock.Verify(orm => orm.Create(It.IsAny<OptionEntity>()), Times.Exactly(2));
+            _optionRepositoryMock.Verify(repo => repo.Create(It.IsAny<OptionEntity>()), Times.Exactly(2));
         }
 
         [Fact]
         public void Update_UnexpectedError_ReturnsInternalError()
         {   // Arrange
             UpdatePollDTO pollDTO = new();
-            _pollRepositoryMock.Setup(prm => prm.GetById(pollDTO.ID)).Throws(new Exception());
+            _pollRepositoryMock.Setup(repo => repo.GetById(pollDTO.ID)).Throws(new Exception());
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
             // Act
-            IResponse response = _pollServiceMock.Update(pollDTO);
+            IResponse response = _pollService.Update(pollDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -159,10 +160,10 @@ namespace VotingApp.Tests.Poll.Application
         public void Update_PollNotFound_ReturnsNotFoundError()
         {   // Arrange
             UpdatePollDTO pollDTO = new();
-            _pollRepositoryMock.Setup(prm => prm.GetById(pollDTO.ID)).Returns<PollEntity?>(null);
+            _pollRepositoryMock.Setup(repo => repo.GetById(pollDTO.ID)).Returns<PollEntity?>(null);
             IResponse expectedResponse = new ResponseFailure("Poll was not found", 404);
             // Act
-            IResponse response = _pollServiceMock.Update(pollDTO);
+            IResponse response = _pollService.Update(pollDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -175,10 +176,10 @@ namespace VotingApp.Tests.Poll.Application
                 UserID = Guid.NewGuid(),
             };
             UpdatePollDTO pollDTO = new() { CurrentUserID = Guid.NewGuid() };
-            _pollRepositoryMock.Setup(prm => prm.GetById(pollDTO.ID)).Returns(pollFound);
+            _pollRepositoryMock.Setup(repo => repo.GetById(pollDTO.ID)).Returns(pollFound);
             IResponse expectedResponse = new ResponseFailure("Unauthorized", 401);
             // Act
-            IResponse response = _pollServiceMock.Update(pollDTO);
+            IResponse response = _pollService.Update(pollDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -192,14 +193,14 @@ namespace VotingApp.Tests.Poll.Application
                 UserID = Guid.NewGuid(),
             };
             UpdatePollDTO pollDTO = new() { CurrentUserID = pollFound.UserID };
-            _pollRepositoryMock.Setup(prm => prm.GetById(pollDTO.ID)).Returns(pollFound);
+            _pollRepositoryMock.Setup(repo => repo.GetById(pollDTO.ID)).Returns(pollFound);
             IResponse expectedResponse = new ResponseSuccess(ResponsePollDTO.FromPoll(pollFound), 200);
             // Act
-            IResponse response = _pollServiceMock.Update(pollDTO);
+            IResponse response = _pollService.Update(pollDTO);
             // Assert
 
             Assert.Equivalent(expectedResponse, response);
-            _pollRepositoryMock.Verify(prm => prm.Update(pollFound), Times.Once);
+            _pollRepositoryMock.Verify(repo => repo.Update(pollFound), Times.Once);
         }
 
         [Fact]
@@ -207,10 +208,10 @@ namespace VotingApp.Tests.Poll.Application
         {   // Arrange
 
             DeleteDTO deleteDTO = new();
-            _pollRepositoryMock.Setup(prm => prm.GetById(deleteDTO.ID)).Throws(new Exception());
+            _pollRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID)).Throws(new Exception());
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
             // Act
-            IResponse response = _pollServiceMock.Delete(deleteDTO);
+            IResponse response = _pollService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -221,11 +222,11 @@ namespace VotingApp.Tests.Poll.Application
         {   // Arrange
 
             DeleteDTO deleteDTO = new();
-            _pollRepositoryMock.Setup(prm => prm.GetById(deleteDTO.ID))
+            _pollRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID))
                 .Returns<PollEntity?>(null);
             IResponse expectedResponse = new ResponseFailure("Poll was not found", 404);
             // Act
-            IResponse response = _pollServiceMock.Delete(deleteDTO);
+            IResponse response = _pollService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -236,11 +237,11 @@ namespace VotingApp.Tests.Poll.Application
 
             DeleteDTO deleteDTO = new() { CurrentUserID = Guid.NewGuid() };
             PollEntity pollFound = new() { UserID = Guid.NewGuid() };
-            _pollRepositoryMock.Setup(prm => prm.GetById(deleteDTO.ID))
+            _pollRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID))
                 .Returns(pollFound);
             IResponse expectedResponse = new ResponseFailure("Unauthorized", 401);
             // Act
-            IResponse response = _pollServiceMock.Delete(deleteDTO);
+            IResponse response = _pollService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
         }
@@ -251,14 +252,14 @@ namespace VotingApp.Tests.Poll.Application
 
             DeleteDTO deleteDTO = new() { CurrentUserID = Guid.NewGuid() };
             PollEntity pollFound = new() { UserID = deleteDTO.CurrentUserID };
-            _pollRepositoryMock.Setup(prm => prm.GetById(deleteDTO.ID))
+            _pollRepositoryMock.Setup(repo => repo.GetById(deleteDTO.ID))
                 .Returns(pollFound);
             IResponse expectedResponse = new ResponseSuccess(ResponsePollDTO.FromPoll(pollFound), 200);
             // Act
-            IResponse response = _pollServiceMock.Delete(deleteDTO);
+            IResponse response = _pollService.Delete(deleteDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _pollRepositoryMock.Verify(prm => prm.Delete(pollFound.ID), Times.Once);
+            _pollRepositoryMock.Verify(repo => repo.Delete(pollFound.ID), Times.Once);
 
         }
 
@@ -268,11 +269,11 @@ namespace VotingApp.Tests.Poll.Application
             // Arrange
             PollFiltersDTO pollDTO = new(1, 10, "", Guid.Empty);
             _pollRepositoryMock
-                .Setup(prm => prm.Get(pollDTO.Filters, pollDTO.Pagination))
+                .Setup(repo => repo.Get(pollDTO.Filters, pollDTO.Pagination))
                 .Throws(new Exception());
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
             // Act
-            IResponse response = _pollServiceMock.Get(pollDTO);
+            IResponse response = _pollService.Get(pollDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
 
@@ -283,7 +284,7 @@ namespace VotingApp.Tests.Poll.Application
             // Arrange
             PollFiltersDTO pollDTO = new(1, 10, "", Guid.Empty);
             _pollRepositoryMock
-                .Setup(prm => prm.Get(pollDTO.Filters, pollDTO.Pagination))
+                .Setup(repo => repo.Get(pollDTO.Filters, pollDTO.Pagination))
                 .Returns((new List<PollEntity>(), 1, 0));
 
             IResponse expectedResponse = new ResponseSuccess(new Results<ResponsePollDTO>
@@ -293,11 +294,11 @@ namespace VotingApp.Tests.Poll.Application
                 Data = Enumerable.Empty<ResponsePollDTO>()
             }, 200);
             // Act
-            IResponse response = _pollServiceMock.Get(pollDTO);
+            IResponse response = _pollService.Get(pollDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
             _pollRepositoryMock
-                .Verify(prm => prm.Get(pollDTO.Filters, pollDTO.Pagination), Times.Once);
+                .Verify(repo => repo.Get(pollDTO.Filters, pollDTO.Pagination), Times.Once);
         }
         [Fact]
         public void Get_WithtData_ReturnsSuccessResponse()
@@ -311,7 +312,7 @@ namespace VotingApp.Tests.Poll.Application
                 new PollEntity(){ID = Guid.NewGuid(),Question = "Is this a test 3?", CreatedAt=DateTime.Now, UserID= Guid.NewGuid()},
             };
             _pollRepositoryMock
-                .Setup(prm => prm.Get(pollDTO.Filters, pollDTO.Pagination))
+                .Setup(repo => repo.Get(pollDTO.Filters, pollDTO.Pagination))
                 .Returns((expectedPolls, 1, 0));
 
             IResponse expectedResponse = new ResponseSuccess(new Results<ResponsePollDTO>
@@ -321,11 +322,11 @@ namespace VotingApp.Tests.Poll.Application
                 Data = expectedPolls.Select(ResponsePollDTO.FromPoll)
             }, 200);
             // Act
-            IResponse response = _pollServiceMock.Get(pollDTO);
+            IResponse response = _pollService.Get(pollDTO);
             // Assert
             Assert.Equivalent(expectedResponse, response);
             _pollRepositoryMock
-                .Verify(prm => prm.Get(pollDTO.Filters, pollDTO.Pagination), Times.Once);
+                .Verify(repo => repo.Get(pollDTO.Filters, pollDTO.Pagination), Times.Once);
         }
         [Fact]
         public void GetByID_UnexpectedError_ReturnsInternalError()
@@ -333,11 +334,11 @@ namespace VotingApp.Tests.Poll.Application
             // Arrange
             GetByIDDTO getByIDDTO = new();
             _pollRepositoryMock
-                .Setup(prm => prm.GetById(getByIDDTO.ID))
+                .Setup(repo => repo.GetById(getByIDDTO.ID))
                 .Throws(new Exception());
             IResponse expectedResponse = new ResponseFailure("Internal Error", 500);
             // Act
-            IResponse response = _pollServiceMock.GetById(getByIDDTO);
+            IResponse response = _pollService.GetById(getByIDDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
@@ -349,17 +350,17 @@ namespace VotingApp.Tests.Poll.Application
             // Arrange
             GetByIDDTO getByIDDTO = new();
             _pollRepositoryMock
-                .Setup(prm => prm.GetById(getByIDDTO.ID))
+                .Setup(repo => repo.GetById(getByIDDTO.ID))
                 .Returns<PollEntity?>(null);
 
             IResponse expectedResponse = new ResponseFailure("Poll was not found", 404);
 
             // Act
-            IResponse response = _pollServiceMock.GetById(getByIDDTO);
+            IResponse response = _pollService.GetById(getByIDDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _pollRepositoryMock.Verify(prm => prm.GetById(getByIDDTO.ID), Times.Once);
+            _pollRepositoryMock.Verify(repo => repo.GetById(getByIDDTO.ID), Times.Once);
         }
 
 
@@ -370,17 +371,17 @@ namespace VotingApp.Tests.Poll.Application
             PollEntity pollFound = new PollEntity();
             GetByIDDTO getByIDDTO = new();
             _pollRepositoryMock
-                .Setup(prm => prm.GetById(getByIDDTO.ID))
+                .Setup(repo => repo.GetById(getByIDDTO.ID))
                 .Returns(pollFound);
 
             IResponse expectedResponse = new ResponseSuccess(ResponsePollDTO.FromPoll(pollFound), 200);
 
             // Act
-            IResponse response = _pollServiceMock.GetById(getByIDDTO);
+            IResponse response = _pollService.GetById(getByIDDTO);
 
             // Assert
             Assert.Equivalent(expectedResponse, response);
-            _pollRepositoryMock.Verify(prm => prm.GetById(getByIDDTO.ID), Times.Once);
+            _pollRepositoryMock.Verify(repo => repo.GetById(getByIDDTO.ID), Times.Once);
         }
         protected virtual void Dispose(bool disposing)
         {
