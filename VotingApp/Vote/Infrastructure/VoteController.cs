@@ -17,11 +17,12 @@ namespace VotingApp.Vote.Infrastructure
     {
         private readonly IVoteService _service;
         private readonly IHubContext<DashboardHub> _hubContext;
-        public VoteController(IVoteService voteService, IHubContext<DashboardHub> hubContext)
+        private readonly IVoteNotificationService _notificationService;
+        public VoteController(IVoteService voteService, IHubContext<DashboardHub> hubContext, IVoteNotificationService notificationService)
         {
             _service = voteService;
             _hubContext = hubContext;
-
+            _notificationService = notificationService;
         }
 
         [HttpPost]
@@ -32,7 +33,7 @@ namespace VotingApp.Vote.Infrastructure
             if (response.Type == 201 && response.Value is ResponseVoteDTO responseVote)
             {
                 OptionEntity option = responseVote.Option;
-                var countResp = _service.AddVoteToDashboard(option);
+                var countResp = _notificationService.AddVoteToDashboard(option);
                 if (countResp.Type == 200 && countResp.Value is List<CountByOptionDTO> count) await _hubContext.
                         Clients.
                         Group(option.PollID.ToString()).

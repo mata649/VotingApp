@@ -12,13 +12,11 @@ namespace VotingApp.Vote.Application
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
-        private readonly IVoteCountCache _voteCountCache;
 
-        public VoteService(IUnitOfWork unitOfWork, ILogger<VoteService> logger, IVoteCountCache voteCountCache)
+        public VoteService(IUnitOfWork unitOfWork, ILogger<VoteService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _voteCountCache = voteCountCache;
         }
 
         public IResponse Create(CreateVoteDTO createVoteDTO)
@@ -57,56 +55,6 @@ namespace VotingApp.Vote.Application
             }
         }
 
-        public IResponse AddVoteToDashboard(OptionEntity option)
-        {
-            try
-            {
-                var list = _voteCountCache.GetCount(option.PollID);
-              
-                if (list is null)
-                {
-                    list = _unitOfWork.VoteRepository.VotesBypoll(option.PollID);
-                    if (!list.Any()) return new ResponseFailure("Count was not found", 404);
-                }
-                else
-                {
-                    list = list.Select(o =>
-                    {
-                        if (o.ID == option.ID) o.Count++;
-                        return o;
-                    }).ToList();
-                }
-                _voteCountCache.Set(option.PollID, list);
-                return new ResponseSuccess(list, 200);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                return new ResponseFailure("Internal Error", 500);
-            }
-        }
-
-        public IResponse GetCountOfVotes(Guid pollID)
-        {
-            try
-            {
-                var list = _voteCountCache.GetCount(pollID);
-
-                if (list is null)
-                {
-                    list = _unitOfWork.VoteRepository.VotesBypoll(pollID);
-                    if (!list.Any()) return new ResponseFailure("Count was not found", 404);
-                }
-
-                _voteCountCache.Set(pollID, list);
-                return new ResponseSuccess(list, 200);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                return new ResponseFailure("Internal Error", 500);
-            }
-        }
 
     }
 }

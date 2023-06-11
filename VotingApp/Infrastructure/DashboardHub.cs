@@ -7,18 +7,18 @@ namespace VotingApp.Infrastructure
 {
     public class DashboardHub : Hub
     {
-        private readonly IVoteService _voteService;
+        private readonly IVoteNotificationService _notificationService;
 
-        public DashboardHub(IVoteService voteService)
+        public DashboardHub(IVoteNotificationService notificationService)
         {
-            _voteService = voteService;
+            _notificationService = notificationService;
         }
 
 
         public async Task JoinDashboard(Guid pollID)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, pollID.ToString());
-            var countResp = _voteService.GetCountOfVotes(pollID);
+            var countResp = _notificationService.GetCountOfVotes(pollID);
             if (countResp.Type == 200 && countResp.Value is List<CountByOptionDTO> count) await Clients.Group(pollID.ToString())
                     .SendAsync("AwaitDashboardInfo", JsonSerializer.Serialize(count));
 

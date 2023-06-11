@@ -37,7 +37,7 @@ builder.Services.AddScoped<IPollService, PollService>();
 builder.Services.AddScoped<IOptionService, OptionService>();
 // Votes
 builder.Services.AddScoped<IVoteService, VoteService>();
-
+builder.Services.AddScoped<IVoteNotificationService, VoteNotificationService>();
 builder.Services.AddSingleton<IVoteCountCache, VoteCountCache>();
 
 // BD
