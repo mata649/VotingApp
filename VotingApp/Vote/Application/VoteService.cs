@@ -1,7 +1,6 @@
 ﻿using VotingApp.Base.Domain;
 using VotingApp.Context;
 using VotingApp.Option.Domain;
-using VotingApp.Poll.Domain;
 using VotingApp.User.Domain;
 using VotingApp.Vote.Domain;
 using VotingApp.Vote.Domain.DTO;
