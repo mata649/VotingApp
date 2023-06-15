@@ -26,8 +26,8 @@ namespace VotingApp.Vote.Application
 
                 if (list is null)
                 {
-                    list = _unitOfWork.VoteRepository.VotesBypoll(option.PollID);
-                    if (!list.Any()) return new ResponseFailure("Count was not found", 404);
+                    list = _unitOfWork.VoteRepository.VotesByPoll(option.PollID);
+                    if (list is null || !list.Any()) return new ResponseFailure("Count was not found", 404);
                 }
                 else
                 {
@@ -55,8 +55,8 @@ namespace VotingApp.Vote.Application
 
                 if (list is null)
                 {
-                    list = _unitOfWork.VoteRepository.VotesBypoll(pollID);
-                    if (!list.Any()) return new ResponseFailure("Count was not found", 404);
+                    list = _unitOfWork.VoteRepository.VotesByPoll(pollID);
+                    if (list is null || !list.Any()) return new ResponseFailure("Count was not found", 404);
                 }
 
                 _voteCountCache.Set(pollID, list);
