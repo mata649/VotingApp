@@ -5,6 +5,6 @@ namespace VotingApp.Vote.Domain
 {
     public interface IVoteRepository : IBaseRepository<VoteEntity>
     {
-        public List<CountByOptionDTO> VotesBypoll(Guid pollID);
+        public List<CountByOptionDTO> VotesByPoll(Guid pollID);
     }
 }
