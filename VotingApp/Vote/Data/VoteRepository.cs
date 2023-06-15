@@ -12,7 +12,7 @@ namespace VotingApp.Vote.Data
         {
         }
 
-        public List<CountByOptionDTO> VotesBypoll(Guid pollID)
+        public List<CountByOptionDTO> VotesByPoll(Guid pollID)
         {
             var result = from option in Context.Options
                          where option.PollID == pollID
